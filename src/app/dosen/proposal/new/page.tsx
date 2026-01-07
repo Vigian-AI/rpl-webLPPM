@@ -77,7 +77,19 @@ export default function NewProposalPage() {
   const loadTeams = async () => {
     const { data } = await getTeamsForProposal();
     if (data) {
-      setTeamList(data);
+      // Transform the data to match expected Team[] type
+      const transformedData: Team[] = data.map((team) => ({
+        id: team.id,
+        nama_tim: team.nama_tim,
+        deskripsi: team.deskripsi,
+        anggota_tim: team.anggota_tim.map((member) => ({
+          id: member.id,
+          peran: member.peran,
+          status: member.status,
+          user: Array.isArray(member.user) ? member.user[0] : member.user,
+        })).filter((member) => member.user), // Filter out members without user data
+      }));
+      setTeamList(transformedData);
     }
   };
 
