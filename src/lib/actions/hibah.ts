@@ -99,6 +99,24 @@ export async function updateHibah(id: string, input: Partial<MasterHibahInput>) 
 export async function deleteHibah(id: string) {
   const supabase = await createClient();
   
+  // Check if there are any proposals using this hibah
+  const { data: proposals, error: checkError } = await supabase
+    .from('proposal')
+    .select('id')
+    .eq('hibah_id', id)
+    .limit(1);
+
+  if (checkError) {
+    return { error: checkError.message };
+  }
+
+  if (proposals && proposals.length > 0) {
+    return { 
+      error: 'Hibah tidak dapat dihapus karena sudah digunakan oleh proposal. Anda bisa menonaktifkan hibah ini sebagai gantinya.' 
+    };
+  }
+
+  // If no proposals are using this hibah, proceed with deletion
   const { error } = await supabase
     .from('master_hibah')
     .delete()

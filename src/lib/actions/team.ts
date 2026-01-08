@@ -89,10 +89,11 @@ export async function getMyLeadTeams() {
       ketua:dosen!tim_ketua_id_fkey(nama, email_institusi),
       anggota_tim(
         *,
-        user:users(
+        user:users!inner(
           id,
           username,
           email,
+          is_active,
           dosen(nama),
           mahasiswa(nama)
         )
@@ -100,6 +101,7 @@ export async function getMyLeadTeams() {
     `)
     .eq('ketua_id', dosenData.id)
     .eq('is_archived', false)
+    .eq('anggota_tim.user.is_active', true)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -140,9 +142,10 @@ export async function getTeamsForProposal() {
         id,
         peran,
         status,
-        user:users(
+        user:users!inner(
           id,
           username,
+          is_active,
           dosen(nama),
           mahasiswa(nama)
         )
@@ -150,6 +153,7 @@ export async function getTeamsForProposal() {
     `)
     .eq('ketua_id', dosenData.id)
     .eq('is_archived', false)
+    .eq('anggota_tim.user.is_active', true)
     .order('created_at', { ascending: false });
 
   if (ketuaError) {
@@ -178,9 +182,10 @@ export async function getTeamsForProposal() {
           id,
           peran,
           status,
-          user:users(
+          user:users!inner(
             id,
             username,
+            is_active,
             dosen(nama),
             mahasiswa(nama)
           )
@@ -188,6 +193,7 @@ export async function getTeamsForProposal() {
       `)
       .in('id', asistenTimIds)
       .eq('is_archived', false)
+      .eq('anggota_tim.user.is_active', true)
       .order('created_at', { ascending: false });
     
     if (teamsData) {
@@ -235,10 +241,11 @@ export async function getArchivedTeams() {
       ketua:dosen!tim_ketua_id_fkey(nama, email_institusi),
       anggota_tim(
         *,
-        user:users(
+        user:users!inner(
           id,
           username,
           email,
+          is_active,
           dosen(nama),
           mahasiswa(nama)
         )
@@ -246,6 +253,7 @@ export async function getArchivedTeams() {
     `)
     .eq('ketua_id', dosenData.id)
     .eq('is_archived', true)
+    .eq('anggota_tim.user.is_active', true)
     .order('updated_at', { ascending: false });
 
   if (error) {
@@ -326,13 +334,14 @@ export async function getTeamMembers(timId: string) {
     .from('anggota_tim')
     .select(`
       *,
-      user:users(
+      user:users!inner(
         *,
         dosen(*),
         mahasiswa(*)
       )
     `)
     .eq('tim_id', timId)
+    .eq('user.is_active', true)
     .order('created_at', { ascending: true });
 
   if (error) {

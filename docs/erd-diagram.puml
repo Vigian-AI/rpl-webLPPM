@@ -1,0 +1,303 @@
+@startuml ERD - LPPM Web System
+
+' ====================================
+' Entity Relationship Diagram
+' LPPM Web System - Research and Community Service Institute
+' ====================================
+
+!define primary_key(x) <b><color:#FF6B6B>PK</color> x</b>
+!define foreign_key(x) <color:#4ECDC4>FK</color> x
+!define unique(x) <color:#95E1D3>UQ</color> x
+
+skinparam linetype ortho
+skinparam backgroundColor #FAFAFA
+skinparam entity {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+  FontName Arial
+}
+
+' ====================================
+' CORE ENTITIES
+' ====================================
+
+entity "users" as users {
+  primary_key(id) : UUID
+  unique(username) : VARCHAR(50)
+  unique(email) : VARCHAR(255)
+  password : VARCHAR(255)
+  role : ENUM('admin','dosen','mahasiswa')
+  is_active : BOOLEAN
+  last_login : TIMESTAMPTZ
+  created_at : TIMESTAMPTZ
+  updated_at : TIMESTAMPTZ
+}
+
+entity "admin" as admin {
+  primary_key(id) : UUID
+  foreign_key(user_id) : UUID
+  nama : VARCHAR(255)
+  nip : VARCHAR(50)
+  jabatan : VARCHAR(100)
+  created_at : TIMESTAMPTZ
+  updated_at : TIMESTAMPTZ
+}
+
+entity "dosen" as dosen {
+  primary_key(id) : UUID
+  foreign_key(user_id) : UUID
+  nama : VARCHAR(255)
+  nidn : VARCHAR(20)
+  nip : VARCHAR(50)
+  fakultas : VARCHAR(100)
+  prodi : VARCHAR(100)
+  jabatan_fungsional : VARCHAR(100)
+  bidang_keahlian : VARCHAR(255)
+  email_institusi : VARCHAR(255)
+  no_telepon : VARCHAR(20)
+  alamat : TEXT
+  foto_url : TEXT
+  created_at : TIMESTAMPTZ
+  updated_at : TIMESTAMPTZ
+}
+
+entity "mahasiswa" as mahasiswa {
+  primary_key(id) : UUID
+  foreign_key(user_id) : UUID
+  nama : VARCHAR(255)
+  nim : VARCHAR(20)
+  fakultas : VARCHAR(100)
+  prodi : VARCHAR(100)
+  angkatan : INTEGER
+  email_institusi : VARCHAR(255)
+  no_telepon : VARCHAR(20)
+  alamat : TEXT
+  foto_url : TEXT
+  created_at : TIMESTAMPTZ
+  updated_at : TIMESTAMPTZ
+}
+
+' ====================================
+' GRANT & RESEARCH ENTITIES
+' ====================================
+
+entity "master_hibah" as master_hibah {
+  primary_key(id) : UUID
+  nama_hibah : VARCHAR(255)
+  deskripsi : TEXT
+  jenis : VARCHAR(100)
+  tahun_anggaran : INTEGER
+  anggaran_total : DECIMAL(15,2)
+  anggaran_per_proposal : DECIMAL(15,2)
+  tanggal_buka : DATE
+  tanggal_tutup : DATE
+  is_active : BOOLEAN
+  persyaratan : TEXT
+  foreign_key(created_by) : UUID
+  created_at : TIMESTAMPTZ
+  updated_at : TIMESTAMPTZ
+}
+
+entity "tim" as tim {
+  primary_key(id) : UUID
+  nama_tim : VARCHAR(255)
+  deskripsi : TEXT
+  foreign_key(ketua_id) : UUID
+  is_archived : BOOLEAN
+  created_at : TIMESTAMPTZ
+  updated_at : TIMESTAMPTZ
+}
+
+entity "proposal" as proposal {
+  primary_key(id) : UUID
+  foreign_key(hibah_id) : UUID
+  foreign_key(tim_id) : UUID
+  foreign_key(ketua_id) : UUID
+  judul : VARCHAR(500)
+  abstrak : TEXT
+  latar_belakang : TEXT
+  tujuan : TEXT
+  metodologi : TEXT
+  luaran : TEXT
+  anggaran_diajukan : DECIMAL(15,2)
+  anggaran_disetujui : DECIMAL(15,2)
+  dokumen_proposal_url : TEXT
+  status_proposal : ENUM
+  catatan_evaluasi : TEXT
+  tanggal_submit : TIMESTAMPTZ
+  tanggal_review : TIMESTAMPTZ
+  foreign_key(reviewer_id) : UUID
+  created_at : TIMESTAMPTZ
+  updated_at : TIMESTAMPTZ
+}
+
+entity "anggota_tim" as anggota_tim {
+  primary_key(id) : UUID
+  foreign_key(tim_id) : UUID
+  foreign_key(user_id) : UUID
+  peran : VARCHAR(100)
+  status : ENUM('pending','accepted','rejected')
+  invited_at : TIMESTAMPTZ
+  responded_at : TIMESTAMPTZ
+  created_at : TIMESTAMPTZ
+  updated_at : TIMESTAMPTZ
+  --
+  unique(tim_id, user_id)
+}
+
+' ====================================
+' DOCUMENT & DISBURSEMENT ENTITIES
+' ====================================
+
+entity "dokumen" as dokumen {
+  primary_key(id) : UUID
+  foreign_key(proposal_id) : UUID
+  nama_dokumen : VARCHAR(255)
+  jenis_dokumen : VARCHAR(100)
+  file_url : TEXT
+  foreign_key(uploaded_by) : UUID
+  created_at : TIMESTAMPTZ
+  updated_at : TIMESTAMPTZ
+}
+
+entity "surat_pencairan" as surat_pencairan {
+  primary_key(id) : UUID
+  foreign_key(proposal_id) : UUID
+  unique(nomor_surat) : VARCHAR(100)
+  tanggal_surat : DATE
+  jumlah_dana : DECIMAL(15,2)
+  keterangan : TEXT
+  status : VARCHAR(50)
+  foreign_key(approved_by) : UUID
+  approved_at : TIMESTAMPTZ
+  foreign_key(created_by) : UUID
+  created_at : TIMESTAMPTZ
+  updated_at : TIMESTAMPTZ
+}
+
+' ====================================
+' ANNOUNCEMENT & LOG ENTITIES
+' ====================================
+
+entity "pengumuman" as pengumuman {
+  primary_key(id) : UUID
+  judul : VARCHAR(255)
+  konten : TEXT
+  kategori : VARCHAR(50)
+  is_published : BOOLEAN
+  tanggal_publish : TIMESTAMPTZ
+  foreign_key(created_by) : UUID
+  created_at : TIMESTAMPTZ
+  updated_at : TIMESTAMPTZ
+}
+
+entity "log_aktivitas" as log_aktivitas {
+  primary_key(id) : UUID
+  foreign_key(user_id) : UUID
+  aksi : VARCHAR(100)
+  tabel_terkait : VARCHAR(50)
+  record_id : UUID
+  detail : JSONB
+  ip_address : VARCHAR(45)
+  created_at : TIMESTAMPTZ
+}
+
+' ====================================
+' RELATIONSHIPS
+' ====================================
+
+' User relationships (1:1)
+users ||--|| admin : "1:1"
+users ||--|| dosen : "1:1"
+users ||--|| mahasiswa : "1:1"
+
+' Tim relationships
+dosen ||--o{ tim : "memimpin\n(ketua)"
+tim ||--o{ anggota_tim : "memiliki"
+users ||--o{ anggota_tim : "menjadi anggota"
+
+' Proposal relationships
+master_hibah ||--o{ proposal : "mendanai"
+tim ||--o{ proposal : "mengajukan"
+dosen ||--o{ proposal : "ketua penelitian"
+users ||--o{ proposal : "mereview"
+
+' Document relationships
+proposal ||--o{ dokumen : "memiliki dokumen"
+users ||--o{ dokumen : "mengunggah"
+
+' Disbursement relationships
+proposal ||--o{ surat_pencairan : "memiliki"
+users ||--o{ surat_pencairan : "menyetujui"
+users ||--o{ surat_pencairan : "membuat"
+
+' Announcement relationships
+users ||--o{ pengumuman : "membuat"
+
+' Master Hibah relationships
+users ||--o{ master_hibah : "membuat"
+
+' Log relationships
+users ||--o{ log_aktivitas : "melakukan aktivitas"
+
+' ====================================
+' NOTES & LEGENDS
+' ====================================
+
+note top of users
+  <b>User Authentication Table</b>
+  --
+  Central authentication table
+  with role-based access:
+  - admin
+  - dosen (lecturer)
+  - mahasiswa (student)
+end note
+
+note top of proposal
+  <b>Research Proposal</b>
+  --
+  Status progression:
+  draft → submitted → review → 
+  revision → accepted/rejected → 
+  completed
+end note
+
+note top of tim
+  <b>Research Team</b>
+  --
+  Each team has a leader (ketua)
+  who must be a Dosen (lecturer)
+end note
+
+note bottom of anggota_tim
+  <b>Team Membership</b>
+  --
+  Invitation-based system
+  Status: pending → accepted/rejected
+end note
+
+note bottom of surat_pencairan
+  <b>Fund Disbursement Letter</b>
+  --
+  Manages financial disbursement
+  for approved proposals
+end note
+
+legend right
+  <b>Legend:</b>
+  <color:#FF6B6B>PK</color> = Primary Key
+  <color:#4ECDC4>FK</color> = Foreign Key
+  <color:#95E1D3>UQ</color> = Unique Constraint
+  --
+  <b>Cardinality:</b>
+  ||--|| = One to One
+  ||--o{ = One to Many
+  }o--o{ = Many to Many
+  --
+  <b>Database:</b> PostgreSQL / Supabase
+  <b>System:</b> LPPM Web System
+  <b>Institution:</b> Research & Community Service
+endlegend
+
+@enduml

@@ -45,6 +45,7 @@ const getNavLinks = (role: 'admin' | 'dosen' | 'mahasiswa') => {
   } else if (role === 'dosen') {
     return [
       { href: '/dosen', label: 'Dashboard', icon: LayoutDashboard },
+      { href: '/dosen/hibah', label: 'Program Hibah', icon: Gift },
       { href: '/dosen/proposal', label: 'Proposal Saya', icon: FileText },
       { href: '/dosen/proposal/new', label: 'Ajukan Proposal', icon: FileText },
       { href: '/dosen/tim', label: 'Tim Penelitian', icon: Users },
@@ -55,11 +56,10 @@ const getNavLinks = (role: 'admin' | 'dosen' | 'mahasiswa') => {
   } else {
     return [
       { href: '/mahasiswa', label: 'Dashboard', icon: LayoutDashboard },
+      { href: '/mahasiswa/hibah', label: 'Program Hibah', icon: Gift },
       { href: '/mahasiswa/undangan', label: 'Undangan Tim', icon: Mail },
       { href: '/mahasiswa/tim', label: 'Tim Saya', icon: Users },
-      { href: '/mahasiswa/proposal', label: 'Proposal Tim', icon: FileText },
       { href: '/mahasiswa/pencairan', label: 'Pencairan Dana', icon: Wallet },
-      { href: '/mahasiswa/dokumen', label: 'Dokumen', icon: FileText },
       { href: '/mahasiswa/profil', label: 'Profil', icon: User },
     ];
   }
@@ -97,16 +97,16 @@ export function DashboardLayout({ children, userRole, userName = 'User' }: Dashb
   };
 
   const Sidebar = ({ mobile = false }) => (
-    <div className={`flex flex-col h-full ${mobile ? '' : 'w-64'}`}>
+    <div className={`flex flex-col h-full ${mobile ? '' : 'w-64'} bg-[#03045E]`}>
       {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b">
+      <div className="h-16 flex items-center px-6 border-b border-[#0A0F8C]">
         <Link href={`/${userRole}`} className="flex items-center space-x-3">
-          <div className={`h-10 w-10 rounded-full ${getRoleColor(userRole)} flex items-center justify-center`}>
-            <span className="text-lg font-bold text-white">LP</span>
+          <div className="h-10 w-10 flex items-center justify-center">
+            <img src="/logoUPB.svg" alt="UPB Logo" className="h-10 w-10 object-contain" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-blue-900">LPPM</h1>
-            <p className="text-xs text-gray-500">{getRoleLabel(userRole)}</p>
+            <h1 className="text-sm font-bold text-white">LPPM PUTRA</h1>
+            <h2 className="text-sm font-bold text-white">BANGSA</h2>
           </div>
         </Link>
       </div>
@@ -123,8 +123,8 @@ export function DashboardLayout({ children, userRole, userName = 'User' }: Dashb
               onClick={() => mobile && setSidebarOpen(false)}
               className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive
-                  ? 'bg-blue-100 text-blue-700 font-medium'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-[#F59E0B] text-[#03045E] font-semibold'
+                  : 'text-white hover:bg-[#0A0F8C] hover:text-white'
               }`}
             >
               <Icon className="h-5 w-5" />
@@ -135,16 +135,16 @@ export function DashboardLayout({ children, userRole, userName = 'User' }: Dashb
       </nav>
 
       {/* User Info */}
-      <div className="p-4 border-t">
+      <div className="p-4 border-t border-[#0A0F8C]">
         <div className="flex items-center space-x-3 px-3 py-2">
           <Avatar className="h-10 w-10">
-            <AvatarFallback className={getRoleColor(userRole)}>
+            <AvatarFallback className="bg-[#F59E0B] text-[#03045E] font-bold">
               {userName.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
-            <p className="text-xs text-gray-500">{getRoleLabel(userRole)}</p>
+            <p className="text-sm font-medium text-white truncate">{userName}</p>
+            <p className="text-xs text-gray-300">{getRoleLabel(userRole)}</p>
           </div>
         </div>
       </div>
@@ -154,13 +154,13 @@ export function DashboardLayout({ children, userRole, userName = 'User' }: Dashb
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col bg-white border-r">
+      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col bg-[#03045E] border-r border-[#0A0F8C]">
         <Sidebar />
       </aside>
 
       {/* Mobile Sidebar */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetContent side="left" className="p-0 w-72">
+        <SheetContent side="left" className="p-0 w-72 bg-[#03045E] border-[#0A0F8C]">
           <Sidebar mobile />
         </SheetContent>
       </Sheet>
@@ -168,13 +168,13 @@ export function DashboardLayout({ children, userRole, userName = 'User' }: Dashb
       {/* Main Content */}
       <div className="lg:pl-64">
         {/* Top Header */}
-        <header className="sticky top-0 z-40 bg-white border-b">
+        <header className="sticky top-0 z-40 bg-[#03045E] border-b border-[#0A0F8C] shadow-sm">
           <div className="flex items-center justify-between h-16 px-4 lg:px-8">
             {/* Mobile Menu Button */}
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className="lg:hidden text-white hover:text-white hover:bg-white/10"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="h-6 w-6" />
@@ -182,7 +182,7 @@ export function DashboardLayout({ children, userRole, userName = 'User' }: Dashb
 
             {/* Page Title - visible on desktop */}
             <div className="hidden lg:block">
-              <h1 className="text-xl font-semibold text-gray-900">
+              <h1 className="text-xl font-semibold text-white">
                 {navLinks.find((link) => link.href === pathname)?.label || 'Dashboard'}
               </h1>
             </div>
@@ -192,9 +192,9 @@ export function DashboardLayout({ children, userRole, userName = 'User' }: Dashb
               {/* User Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2">
+                  <Button variant="ghost" className="flex items-center space-x-2 text-white hover:text-white hover:bg-white/10">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback className={getRoleColor(userRole)}>
+                      <AvatarFallback className="bg-[#F59E0B] text-[#03045E] font-bold">
                         {userName.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>

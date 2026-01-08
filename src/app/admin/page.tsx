@@ -87,7 +87,7 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#03045E]" />
       </div>
     );
   }
@@ -95,41 +95,47 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard Admin</h1>
+        <h1 className="text-2xl font-bold text-[#03045E]">Dashboard Admin</h1>
         <p className="text-gray-600 mt-1">Selamat datang di panel administrasi LPPM</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="border-l-4 border-[#03045E]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Proposal</CardTitle>
-            <FileText className="h-5 w-5 text-blue-600" />
+            <CardTitle className="text-sm font-medium text-gray-600">Total Proposal</CardTitle>
+            <div className="p-2 bg-[#03045E] rounded-lg">
+              <FileText className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalProposals}</div>
+            <div className="text-2xl font-bold text-[#03045E]">{stats.totalProposals}</div>
             <p className="text-xs text-muted-foreground">Semua proposal terdaftar</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-[#F59E0B]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Menunggu Review</CardTitle>
-            <Clock className="h-5 w-5 text-yellow-600" />
+            <CardTitle className="text-sm font-medium text-gray-600">Menunggu Review</CardTitle>
+            <div className="p-2 bg-[#F59E0B] rounded-lg">
+              <Clock className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.pendingReview}</div>
+            <div className="text-2xl font-bold text-[#03045E]">{stats.pendingReview}</div>
             <p className="text-xs text-muted-foreground">Perlu ditindaklanjuti</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-[#03045E]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Proposal Diterima</CardTitle>
-            <CheckCircle className="h-5 w-5 text-green-600" />
+            <CardTitle className="text-sm font-medium text-gray-600">Proposal Diterima</CardTitle>
+            <div className="p-2 bg-green-500 rounded-lg">
+              <CheckCircle className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.acceptedProposals}</div>
+            <div className="text-2xl font-bold text-[#03045E]">{stats.acceptedProposals}</div>
             <p className="text-xs text-muted-foreground">
               {stats.totalProposals > 0 
                 ? `${Math.round((stats.acceptedProposals / stats.totalProposals) * 100)}% tingkat penerimaan`
@@ -138,13 +144,15 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-[#F59E0B]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Dana Tersalurkan</CardTitle>
-            <Wallet className="h-5 w-5 text-purple-600" />
+            <CardTitle className="text-sm font-medium text-gray-600">Dana Tersalurkan</CardTitle>
+            <div className="p-2 bg-[#03045E] rounded-lg">
+              <Wallet className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold text-[#03045E]">
               Rp {(stats.totalDisbursed / 1000000).toFixed(0)}Jt
             </div>
             <p className="text-xs text-muted-foreground">Total pencairan tahun ini</p>
@@ -157,23 +165,23 @@ export default function AdminDashboard() {
         {/* Quick Actions */}
         <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle>Aksi Cepat</CardTitle>
+            <CardTitle className="text-[#03045E]">Aksi Cepat</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <Link href="/admin/hibah/new">
-              <Button className="w-full justify-start" variant="outline">
+              <Button className="w-full justify-start bg-[#03045E] hover:bg-[#020338] text-white">
                 <Gift className="mr-2 h-4 w-4" />
                 Buat Program Hibah Baru
               </Button>
             </Link>
             <Link href="/admin/proposal">
-              <Button className="w-full justify-start" variant="outline">
+              <Button className="w-full justify-start bg-[#F59E0B] hover:bg-[#D97706] text-[#03045E] font-semibold">
                 <FileText className="mr-2 h-4 w-4" />
                 Review Proposal
               </Button>
             </Link>
             <Link href="/admin/pencairan/new">
-              <Button className="w-full justify-start" variant="outline">
+              <Button className="w-full justify-start border-[#03045E] text-[#03045E] hover:bg-[#03045E] hover:text-white" variant="outline">
                 <Wallet className="mr-2 h-4 w-4" />
                 Buat Surat Pencairan
               </Button>
@@ -184,9 +192,9 @@ export default function AdminDashboard() {
         {/* Recent Proposals */}
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Proposal Terbaru</CardTitle>
+            <CardTitle className="text-[#03045E]">Proposal Terbaru</CardTitle>
             <Link href="/admin/proposal">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-[#F59E0B] hover:text-[#D97706]">
                 Lihat Semua
               </Button>
             </Link>
@@ -202,10 +210,10 @@ export default function AdminDashboard() {
                 recentProposals.map((proposal) => (
                   <div
                     key={proposal.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                    className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-[#03045E]/10 hover:border-[#F59E0B] transition-colors"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-[#03045E] truncate">
                         {proposal.judul}
                       </p>
                       <p className="text-sm text-gray-500">{proposal.ketua}</p>
@@ -230,9 +238,9 @@ export default function AdminDashboard() {
       {/* Active Grants Summary */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Program Hibah Aktif</CardTitle>
+          <CardTitle className="text-[#03045E]">Program Hibah Aktif</CardTitle>
           <Link href="/admin/hibah">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="text-[#F59E0B] hover:text-[#D97706]">
               Kelola Hibah
             </Button>
           </Link>
@@ -243,7 +251,7 @@ export default function AdminDashboard() {
               <Gift className="h-12 w-12 mx-auto mb-3 text-gray-300" />
               <p>Tidak ada program hibah yang sedang aktif</p>
               <Link href="/admin/hibah/new">
-                <Button className="mt-4" variant="outline">
+                <Button className="mt-4 bg-[#03045E] hover:bg-[#020338] text-white">
                   Buat Program Hibah Baru
                 </Button>
               </Link>
@@ -252,16 +260,16 @@ export default function AdminDashboard() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {activeHibah.map((hibah, index) => {
                 const colors = [
-                  { bg: 'bg-blue-50', border: 'border-blue-100', title: 'text-blue-900', text: 'text-blue-600', sub: 'text-blue-500' },
-                  { bg: 'bg-green-50', border: 'border-green-100', title: 'text-green-900', text: 'text-green-600', sub: 'text-green-500' },
-                  { bg: 'bg-purple-50', border: 'border-purple-100', title: 'text-purple-900', text: 'text-purple-600', sub: 'text-purple-500' },
-                  { bg: 'bg-yellow-50', border: 'border-yellow-100', title: 'text-yellow-900', text: 'text-yellow-600', sub: 'text-yellow-500' },
+                  { bg: 'bg-blue-50', border: 'border-[#03045E]', title: 'text-[#03045E]', text: 'text-[#03045E]', sub: 'text-gray-600' },
+                  { bg: 'bg-yellow-50', border: 'border-[#F59E0B]', title: 'text-[#03045E]', text: 'text-[#F59E0B]', sub: 'text-gray-600' },
+                  { bg: 'bg-blue-100', border: 'border-[#03045E]', title: 'text-[#03045E]', text: 'text-[#03045E]', sub: 'text-gray-600' },
+                  { bg: 'bg-yellow-100', border: 'border-[#F59E0B]', title: 'text-[#03045E]', text: 'text-[#F59E0B]', sub: 'text-gray-600' },
                 ];
                 const color = colors[index % colors.length];
                 return (
                   <div key={hibah.id} className={`p-4 ${color.bg} rounded-lg border ${color.border}`}>
                     <h4 className={`font-medium ${color.title} truncate`}>{hibah.nama}</h4>
-                    <p className={`text-sm ${color.text} mt-1`}>{hibah.totalProposal} proposal diterima</p>
+                    <p className={`text-sm ${color.text} mt-1 font-semibold`}>{hibah.totalProposal} proposal diterima</p>
                     <p className={`text-xs ${color.sub} mt-2`}>
                       Berakhir: {new Date(hibah.tanggalTutup).toLocaleDateString('id-ID', {
                         day: 'numeric',

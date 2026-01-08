@@ -15,7 +15,9 @@ import {
   FileText, 
   Download,
   ExternalLink,
-  FolderOpen
+  FolderOpen,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { getMyTeams } from '@/lib/actions/team';
 import type { StatusProposal } from '@/types/database.types';
@@ -59,6 +61,7 @@ export default function TimSayaPage() {
   const [teams, setTeams] = useState<TeamMembership[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [expandedTeams, setExpandedTeams] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     loadTeams();
@@ -69,11 +72,26 @@ export default function TimSayaPage() {
     const { data, error } = await getMyTeams();
     if (data) {
       setTeams(data as TeamMembership[]);
+      // Auto-expand teams with proposals
+      const expanded: Record<string, boolean> = {};
+      data.forEach((team: TeamMembership) => {
+        if (team.tim.proposal && team.tim.proposal.length > 0) {
+          expanded[team.id] = true;
+        }
+      });
+      setExpandedTeams(expanded);
     }
     if (error) {
       setError(error);
     }
     setLoading(false);
+  };
+
+  const toggleProposalSection = (teamId: string) => {
+    setExpandedTeams(prev => ({
+      ...prev,
+      [teamId]: !prev[teamId]
+    }));
   };
 
   const formatDate = (dateString: string | null) => {
@@ -179,61 +197,74 @@ export default function TimSayaPage() {
                     <>
                       <Separator className="my-4" />
                       <div>
-                        <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                          <FileText className="h-4 w-4" />
-                          Proposal Penelitian ({team.tim.proposal.length})
-                        </h4>
-                        <div className="space-y-3">
-                          {team.tim.proposal.map((proposal) => (
-                            <div 
-                              key={proposal.id}
-                              className="p-4 bg-gray-50 rounded-lg border"
-                            >
-                              <div className="flex items-start justify-between mb-2">
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-gray-900 truncate">
-                                    {proposal.judul}
-                                  </p>
-                                  <p className="text-sm text-gray-500">
-                                    {proposal.hibah?.nama_hibah || 'Program Hibah'}
-                                  </p>
-                                </div>
-                                <Badge className={statusConfig[proposal.status_proposal].color}>
-                                  {statusConfig[proposal.status_proposal].label}
-                                </Badge>
-                              </div>
-
-                              {proposal.anggaran_disetujui && (
-                                <p className="text-sm text-gray-600 mb-3">
-                                  <span className="font-medium">Anggaran Disetujui:</span>{' '}
-                                  {formatCurrency(proposal.anggaran_disetujui)}
-                                </p>
-                              )}
-
-                              {/* Dokumen Proposal */}
-                              {proposal.dokumen_proposal_url ? (
-                                <a 
-                                  href={proposal.dokumen_proposal_url} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200"
-                                >
-                                  <FileText className="h-5 w-5 text-blue-600" />
-                                  <div className="flex-1">
-                                    <p className="font-medium text-blue-700">Dokumen Proposal</p>
-                                    <p className="text-xs text-blue-600">Klik untuk mengunduh/melihat</p>
+                        <button
+                          onClick={() => toggleProposalSection(team.id)}
+                          className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                        >
+                          <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                            <FileText className="h-4 w-4" />
+                            Proposal Penelitian ({team.tim.proposal.length})
+                          </h4>
+                          {expandedTeams[team.id] ? (
+                            <ChevronUp className="h-5 w-5 text-gray-500" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-gray-500" />
+                          )}
+                        </button>
+                        
+                        {expandedTeams[team.id] && (
+                          <div className="space-y-3 mt-3">
+                            {team.tim.proposal.map((proposal) => (
+                              <div 
+                                key={proposal.id}
+                                className="p-4 bg-gray-50 rounded-lg border"
+                              >
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-gray-900 truncate">
+                                      {proposal.judul}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                      {proposal.hibah?.nama_hibah || 'Program Hibah'}
+                                    </p>
                                   </div>
-                                  <Download className="h-5 w-5 text-blue-600" />
-                                </a>
-                              ) : (
-                                <div className="flex items-center gap-2 p-3 bg-gray-100 rounded-lg text-gray-500">
-                                  <FolderOpen className="h-5 w-5" />
-                                  <p className="text-sm">Dokumen belum diunggah</p>
+                                  <Badge className={statusConfig[proposal.status_proposal].color}>
+                                    {statusConfig[proposal.status_proposal].label}
+                                  </Badge>
                                 </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
+
+                                {proposal.anggaran_disetujui && (
+                                  <p className="text-sm text-gray-600 mb-3">
+                                    <span className="font-medium">Anggaran Disetujui:</span>{' '}
+                                    {formatCurrency(proposal.anggaran_disetujui)}
+                                  </p>
+                                )}
+
+                                {/* Dokumen Proposal */}
+                                {proposal.dokumen_proposal_url ? (
+                                  <a 
+                                    href={proposal.dokumen_proposal_url} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200"
+                                  >
+                                    <FileText className="h-5 w-5 text-blue-600" />
+                                    <div className="flex-1">
+                                      <p className="font-medium text-blue-700">Dokumen Proposal</p>
+                                      <p className="text-xs text-blue-600">Klik untuk mengunduh/melihat</p>
+                                    </div>
+                                    <Download className="h-5 w-5 text-blue-600" />
+                                  </a>
+                                ) : (
+                                  <div className="flex items-center gap-2 p-3 bg-gray-100 rounded-lg text-gray-500">
+                                    <FolderOpen className="h-5 w-5" />
+                                    <p className="text-sm">Dokumen belum diunggah</p>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </>
                   )}

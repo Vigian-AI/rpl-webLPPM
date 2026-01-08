@@ -1,0 +1,520 @@
+@startuml LPPM_Web_System_Class_Diagram
+
+' ============================================
+' LPPM Web System - Class Diagram
+' Research and Community Service Institute
+' ============================================
+
+skinparam classAttributeIconSize 0
+skinparam monochrome false
+skinparam shadowing true
+skinparam linetype ortho
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+    ArrowColor Black
+}
+
+' ==================== ENUMERATIONS ====================
+
+enum UserRole {
+    admin
+    dosen
+    mahasiswa
+}
+
+enum StatusAnggota {
+    pending
+    accepted
+    rejected
+}
+
+enum StatusProposal {
+    draft
+    submitted
+    review
+    revision
+    accepted
+    rejected
+    completed
+}
+
+' ==================== CORE ENTITY CLASSES ====================
+
+class User {
+    - id: UUID
+    - username: String
+    - email: String
+    - password: String
+    - role: UserRole
+    - is_active: Boolean
+    - last_login: DateTime
+    - created_at: DateTime
+    - updated_at: DateTime
+    --
+    + login(username, password): Boolean
+    + logout(): void
+    + updateProfile(): void
+    + changePassword(): void
+    + isAuthenticated(): Boolean
+    + hasRole(role): Boolean
+}
+
+class Admin {
+    - id: UUID
+    - user_id: UUID
+    - nama: String
+    - nip: String
+    - jabatan: String
+    - created_at: DateTime
+    - updated_at: DateTime
+    --
+    + manageUsers(): void
+    + manageHibah(): void
+    + reviewProposal(): void
+    + approvePencairan(): void
+    + viewStatistics(): AdminDashboardStats
+    + createPengumuman(): void
+}
+
+class Dosen {
+    - id: UUID
+    - user_id: UUID
+    - nama: String
+    - nidn: String
+    - nip: String
+    - fakultas: String
+    - prodi: String
+    - jabatan_fungsional: String
+    - bidang_keahlian: String
+    - email_institusi: String
+    - no_telepon: String
+    - alamat: String
+    - foto_url: String
+    - created_at: DateTime
+    - updated_at: DateTime
+    --
+    + createTim(): Tim
+    + createProposal(): Proposal
+    + submitProposal(): void
+    + inviteAnggota(): void
+    + viewMyProposals(): List<Proposal>
+    + viewStatistics(): DosenDashboardStats
+}
+
+class Mahasiswa {
+    - id: UUID
+    - user_id: UUID
+    - nama: String
+    - nim: String
+    - fakultas: String
+    - prodi: String
+    - angkatan: Integer
+    - email_institusi: String
+    - no_telepon: String
+    - alamat: String
+    - foto_url: String
+    - created_at: DateTime
+    - updated_at: DateTime
+    --
+    + viewInvitations(): List<AnggotaTim>
+    + acceptInvitation(): void
+    + rejectInvitation(): void
+    + viewMyTeams(): List<Tim>
+    + viewStatistics(): MahasiswaDashboardStats
+}
+
+' ==================== GRANT & PROPOSAL CLASSES ====================
+
+class MasterHibah {
+    - id: UUID
+    - nama_hibah: String
+    - deskripsi: String
+    - jenis: String
+    - tahun_anggaran: Integer
+    - anggaran_total: Decimal
+    - anggaran_per_proposal: Decimal
+    - tanggal_buka: Date
+    - tanggal_tutup: Date
+    - is_active: Boolean
+    - persyaratan: String
+    - created_by: UUID
+    - created_at: DateTime
+    - updated_at: DateTime
+    --
+    + isOpen(): Boolean
+    + isClosed(): Boolean
+    + getAvailableBudget(): Decimal
+    + getProposalCount(): Integer
+    + activate(): void
+    + deactivate(): void
+}
+
+class Tim {
+    - id: UUID
+    - nama_tim: String
+    - deskripsi: String
+    - ketua_id: UUID
+    - is_archived: Boolean
+    - created_at: DateTime
+    - updated_at: DateTime
+    --
+    + addAnggota(user, peran): AnggotaTim
+    + removeAnggota(user): void
+    + getAnggotaList(): List<AnggotaTim>
+    + getAcceptedMembers(): List<AnggotaTim>
+    + archive(): void
+    + isValidForProposal(): Boolean
+}
+
+class AnggotaTim {
+    - id: UUID
+    - tim_id: UUID
+    - user_id: UUID
+    - peran: String
+    - status: StatusAnggota
+    - invited_at: DateTime
+    - responded_at: DateTime
+    - created_at: DateTime
+    - updated_at: DateTime
+    --
+    + accept(): void
+    + reject(): void
+    + isPending(): Boolean
+    + isAccepted(): Boolean
+}
+
+class Proposal {
+    - id: UUID
+    - hibah_id: UUID
+    - tim_id: UUID
+    - ketua_id: UUID
+    - judul: String
+    - abstrak: String
+    - latar_belakang: String
+    - tujuan: String
+    - metodologi: String
+    - luaran: String
+    - anggaran_diajukan: Decimal
+    - anggaran_disetujui: Decimal
+    - dokumen_proposal_url: String
+    - link_drive: String
+    - status_proposal: StatusProposal
+    - catatan_evaluasi: String
+    - tanggal_submit: DateTime
+    - tanggal_review: DateTime
+    - reviewer_id: UUID
+    - created_at: DateTime
+    - updated_at: DateTime
+    --
+    + submit(): void
+    + review(status, catatan): void
+    + approve(anggaran_disetujui): void
+    + reject(catatan): void
+    + requestRevision(catatan): void
+    + complete(): void
+    + isDraft(): Boolean
+    + isEditable(): Boolean
+    + canSubmit(): Boolean
+    + getStatus(): StatusProposal
+}
+
+' ==================== DOCUMENT & DISBURSEMENT CLASSES ====================
+
+class SuratPencairan {
+    - id: UUID
+    - proposal_id: UUID
+    - nomor_surat: String
+    - tanggal_surat: Date
+    - jumlah_dana: Decimal
+    - keterangan: String
+    - dokumen_url: String
+    - created_by: UUID
+    - created_at: DateTime
+    - updated_at: DateTime
+    --
+    + generateNomorSurat(): String
+    + approve(): void
+    + process(): void
+    + complete(): void
+}
+
+class Dokumen {
+    - id: UUID
+    - proposal_id: UUID
+    - nama_dokumen: String
+    - jenis_dokumen: String
+    - deskripsi: String
+    - file_url: String
+    - uploaded_by: UUID
+    - is_public: Boolean
+    - created_at: DateTime
+    - updated_at: DateTime
+    --
+    + upload(file): void
+    + download(): File
+    + delete(): void
+    + makePublic(): void
+    + makePrivate(): void
+}
+
+class Pengumuman {
+    - id: UUID
+    - judul: String
+    - konten: String
+    - kategori: String
+    - is_published: Boolean
+    - tanggal_publish: DateTime
+    - created_by: UUID
+    - created_at: DateTime
+    - updated_at: DateTime
+    --
+    + publish(): void
+    + unpublish(): void
+    + isPublished(): Boolean
+}
+
+class LogAktivitas {
+    - id: UUID
+    - user_id: UUID
+    - aksi: String
+    - detail: JSON
+    - ip_address: String
+    - created_at: DateTime
+    --
+    + log(user, aksi, detail): void
+}
+
+' ==================== STATISTICS/DTO CLASSES ====================
+
+class AdminDashboardStats <<DTO>> {
+    + totalProposals: Integer
+    + pendingReview: Integer
+    + acceptedProposals: Integer
+    + rejectedProposals: Integer
+    + activeGrants: Integer
+    + totalDisbursed: Decimal
+}
+
+class DosenDashboardStats <<DTO>> {
+    + myProposals: Integer
+    + acceptedProposals: Integer
+    + pendingProposals: Integer
+    + totalFunding: Decimal
+}
+
+class MahasiswaDashboardStats <<DTO>> {
+    + pendingInvitations: Integer
+    + activeTeams: Integer
+    + completedProjects: Integer
+}
+
+' ==================== INPUT/FORM CLASSES ====================
+
+class LoginInput <<Input>> {
+    + username: String
+    + password: String
+}
+
+class RegisterInput <<Input>> {
+    + username: String
+    + email: String
+    + password: String
+    + role: UserRole
+    + nama: String
+    + nidn: String
+    + nim: String
+    + nip: String
+    + fakultas: String
+    + prodi: String
+}
+
+class ProposalInput <<Input>> {
+    + hibah_id: String
+    + tim_id: String
+    + judul: String
+    + abstrak: String
+    + latar_belakang: String
+    + tujuan: String
+    + metodologi: String
+    + luaran: String
+    + anggaran_diajukan: Decimal
+    + link_drive: String
+}
+
+class TimInput <<Input>> {
+    + nama_tim: String
+    + deskripsi: String
+}
+
+class MasterHibahInput <<Input>> {
+    + nama_hibah: String
+    + deskripsi: String
+    + jenis: String
+    + tahun_anggaran: Integer
+    + anggaran_total: Decimal
+    + anggaran_per_proposal: Decimal
+    + tanggal_buka: Date
+    + tanggal_tutup: Date
+    + is_active: Boolean
+    + persyaratan: String
+}
+
+class SuratPencairanInput <<Input>> {
+    + proposal_id: String
+    + nomor_surat: String
+    + tanggal_surat: Date
+    + jumlah_dana: Decimal
+    + keterangan: String
+}
+
+' ==================== API RESPONSE CLASSES ====================
+
+class ApiResponse<T> <<Response>> {
+    + data: T
+    + error: String
+    + success: Boolean
+}
+
+class PaginatedResponse<T> <<Response>> {
+    + data: List<T>
+    + count: Integer
+    + page: Integer
+    + pageSize: Integer
+    + totalPages: Integer
+}
+
+' ==================== SERVICE CLASSES ====================
+
+class AuthService <<Service>> {
+    + login(input: LoginInput): ApiResponse<User>
+    + register(input: RegisterInput): ApiResponse<User>
+    + logout(): void
+    + getCurrentUser(): User
+    + validateSession(): Boolean
+}
+
+class ProposalService <<Service>> {
+    + create(input: ProposalInput): ApiResponse<Proposal>
+    + update(id, input: ProposalInput): ApiResponse<Proposal>
+    + submit(id): ApiResponse<Proposal>
+    + review(id, status, catatan): ApiResponse<Proposal>
+    + getById(id): Proposal
+    + getByKetua(ketuaId): List<Proposal>
+    + getAll(): List<Proposal>
+}
+
+class TeamService <<Service>> {
+    + create(input: TimInput): ApiResponse<Tim>
+    + inviteMember(timId, userId, peran): ApiResponse<AnggotaTim>
+    + acceptInvitation(id): ApiResponse<AnggotaTim>
+    + rejectInvitation(id): ApiResponse<AnggotaTim>
+    + getByKetua(ketuaId): List<Tim>
+    + getMembers(timId): List<AnggotaTim>
+}
+
+class HibahService <<Service>> {
+    + create(input: MasterHibahInput): ApiResponse<MasterHibah>
+    + update(id, input: MasterHibahInput): ApiResponse<MasterHibah>
+    + getActive(): List<MasterHibah>
+    + getById(id): MasterHibah
+    + activate(id): ApiResponse<MasterHibah>
+    + deactivate(id): ApiResponse<MasterHibah>
+}
+
+class PencairanService <<Service>> {
+    + create(input: SuratPencairanInput): ApiResponse<SuratPencairan>
+    + getByProposal(proposalId): List<SuratPencairan>
+    + generateNomorSurat(year): String
+}
+
+class AdminService <<Service>> {
+    + getDashboardStats(): AdminDashboardStats
+    + getAllUsers(): List<User>
+    + activateUser(id): void
+    + deactivateUser(id): void
+}
+
+' ==================== RELATIONSHIPS ====================
+
+' User Inheritance/Role relationships
+User "1" -- "0..1" Admin : has profile >
+User "1" -- "0..1" Dosen : has profile >
+User "1" -- "0..1" Mahasiswa : has profile >
+User --> UserRole : role
+
+' Tim relationships
+Dosen "1" -- "*" Tim : ketua/creates >
+Tim "1" -- "*" AnggotaTim : has members >
+User "1" -- "*" AnggotaTim : member of >
+AnggotaTim --> StatusAnggota : status
+
+' Proposal relationships
+MasterHibah "1" -- "*" Proposal : contains >
+Tim "1" -- "*" Proposal : submits >
+Dosen "1" -- "*" Proposal : ketua >
+Proposal "1" -- "*" Dokumen : has >
+Proposal "1" -- "*" SuratPencairan : has >
+Proposal --> StatusProposal : status
+Admin "0..1" -- "*" Proposal : reviews >
+
+' Other relationships
+MasterHibah "*" -- "0..1" User : created by >
+Pengumuman "*" -- "0..1" User : created by >
+Dokumen "*" -- "0..1" User : uploaded by >
+LogAktivitas "*" -- "0..1" User : logged for >
+
+' Service dependencies
+AuthService ..> User : manages
+AuthService ..> LoginInput : uses
+AuthService ..> RegisterInput : uses
+ProposalService ..> Proposal : manages
+ProposalService ..> ProposalInput : uses
+TeamService ..> Tim : manages
+TeamService ..> AnggotaTim : manages
+TeamService ..> TimInput : uses
+HibahService ..> MasterHibah : manages
+HibahService ..> MasterHibahInput : uses
+PencairanService ..> SuratPencairan : manages
+PencairanService ..> SuratPencairanInput : uses
+AdminService ..> Admin : manages
+AdminService ..> AdminDashboardStats : returns
+
+' Statistics returns
+Admin ..> AdminDashboardStats : gets
+Dosen ..> DosenDashboardStats : gets
+Mahasiswa ..> MahasiswaDashboardStats : gets
+
+' ==================== NOTES ====================
+
+note top of User
+  <b>Base user class</b>
+  All users (Admin, Dosen, Mahasiswa)
+  inherit authentication from User.
+  Simple username/password auth.
+end note
+
+note right of Proposal
+  <b>Core business entity</b>
+  Proposals go through multiple
+  status transitions:
+  draft → submitted → review
+  → (revision/accepted/rejected)
+  → completed
+end note
+
+note bottom of MasterHibah
+  <b>Grant Program</b>
+  Contains budget allocation
+  and timeline for proposal
+  submissions.
+end note
+
+note left of Tim
+  <b>Research Team</b>
+  Led by a Dosen (ketua)
+  with multiple members
+  (Dosen/Mahasiswa)
+end note
+
+@enduml

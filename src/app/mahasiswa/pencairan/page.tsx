@@ -37,6 +37,7 @@ export default function MahasiswaPencairanPage() {
   const [loading, setLoading] = useState(true);
   const [selectedSurat, setSelectedSurat] = useState<SuratPencairanWithProposal | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadData();
@@ -44,7 +45,12 @@ export default function MahasiswaPencairanPage() {
 
   const loadData = async () => {
     setLoading(true);
+    setError('');
     const result = await getMySuratPencairan();
+    
+    if (result.error) {
+      setError(result.error);
+    }
     
     if (result.data) {
       setSuratList(result.data as SuratPencairanWithProposal[]);
@@ -89,6 +95,17 @@ export default function MahasiswaPencairanPage() {
           Lihat dan unduh surat pencairan dana untuk proposal tim yang Anda ikuti
         </p>
       </div>
+
+      {error && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 text-red-600">
+              <AlertCircle className="h-5 w-5" />
+              <span className="font-medium">Error: {error}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Summary Card */}
       <div className="grid gap-4 md:grid-cols-2">

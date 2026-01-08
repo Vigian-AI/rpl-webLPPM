@@ -197,8 +197,8 @@ export default function HibahManagementPage() {
                     <Input
                       id="anggaran_total"
                       type="number"
-                      value={formData.anggaran_total}
-                      onChange={(e) => setFormData({ ...formData, anggaran_total: parseInt(e.target.value) })}
+                      value={formData.anggaran_total || ''}
+                      onChange={(e) => setFormData({ ...formData, anggaran_total: parseInt(e.target.value) || 0 })}
                       placeholder="500000000"
                       required
                     />

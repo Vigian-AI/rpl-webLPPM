@@ -68,41 +68,47 @@ export default function MahasiswaDashboard() {
     <div className="space-y-8">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard Mahasiswa</h1>
+        <h1 className="text-2xl font-bold text-[#03045E]">Dashboard Mahasiswa</h1>
         <p className="text-gray-600 mt-1">Selamat datang di portal penelitian dan pengabdian</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid gap-6 md:grid-cols-3">
-        <Card>
+        <Card className="border-l-4 border-[#03045E]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tim Aktif</CardTitle>
-            <Users className="h-5 w-5 text-green-600" />
+            <CardTitle className="text-sm font-medium text-gray-600">Tim Aktif</CardTitle>
+            <div className="p-2 bg-[#03045E] rounded-lg">
+              <Users className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{loading ? '-' : teams.length}</div>
+            <div className="text-2xl font-bold text-[#03045E]">{loading ? '-' : teams.length}</div>
             <p className="text-xs text-muted-foreground">Tim yang diikuti</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-[#F59E0B]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Undangan Pending</CardTitle>
-            <Mail className="h-5 w-5 text-yellow-600" />
+            <CardTitle className="text-sm font-medium text-gray-600">Undangan Pending</CardTitle>
+            <div className="p-2 bg-[#F59E0B] rounded-lg">
+              <Mail className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{loading ? '-' : invitations.length}</div>
+            <div className="text-2xl font-bold text-[#03045E]">{loading ? '-' : invitations.length}</div>
             <p className="text-xs text-muted-foreground">Menunggu respon</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-[#03045E]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Proyek Selesai</CardTitle>
-            <CheckCircle className="h-5 w-5 text-blue-600" />
+            <CardTitle className="text-sm font-medium text-gray-600">Proyek Selesai</CardTitle>
+            <div className="p-2 bg-green-500 rounded-lg">
+              <CheckCircle className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold text-[#03045E]">0</div>
             <p className="text-xs text-muted-foreground">Total kontribusi</p>
           </CardContent>
         </Card>
@@ -110,9 +116,9 @@ export default function MahasiswaDashboard() {
 
       {/* Pending Invitations */}
       {invitations.length > 0 && (
-        <Card className="border-yellow-200 bg-yellow-50/50">
+        <Card className="border-[#F59E0B] bg-yellow-50/50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-yellow-700">
+            <CardTitle className="flex items-center gap-2 text-[#03045E]">
               <Mail className="h-5 w-5" />
               Undangan Tim ({invitations.length})
             </CardTitle>
@@ -122,20 +128,20 @@ export default function MahasiswaDashboard() {
               {invitations.slice(0, 3).map((invitation) => (
                 <div 
                   key={invitation.id} 
-                  className="flex items-center justify-between p-3 bg-white rounded-lg border"
+                  className="flex items-center justify-between p-3 bg-white rounded-lg border border-[#F59E0B]/20"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                      <Users className="h-5 w-5 text-yellow-600" />
+                    <div className="h-10 w-10 rounded-full bg-[#F59E0B] flex items-center justify-center">
+                      <Users className="h-5 w-5 text-[#03045E]" />
                     </div>
                     <div>
-                      <p className="font-medium">{invitation.tim.nama_tim}</p>
+                      <p className="font-medium text-[#03045E]">{invitation.tim.nama_tim}</p>
                       <p className="text-sm text-gray-500">
                         Dari: {invitation.tim.ketua?.nama} • Peran: {invitation.peran}
                       </p>
                     </div>
                   </div>
-                  <Badge className="bg-yellow-100 text-yellow-700">
+                  <Badge className="bg-[#F59E0B] text-white">
                     <Clock className="h-3 w-3 mr-1" />
                     Menunggu
                   </Badge>
@@ -148,7 +154,7 @@ export default function MahasiswaDashboard() {
               )}
             </div>
             <Link href="/mahasiswa/undangan">
-              <Button className="w-full mt-4 bg-yellow-600 hover:bg-yellow-700">
+              <Button className="w-full mt-4 bg-[#F59E0B] hover:bg-[#D97706] text-[#03045E] font-semibold">
                 Lihat Semua Undangan
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
@@ -160,12 +166,12 @@ export default function MahasiswaDashboard() {
       {/* My Teams */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-green-600" />
+          <CardTitle className="flex items-center gap-2 text-[#03045E]">
+            <Users className="h-5 w-5 text-[#03045E]" />
             Tim Saya
           </CardTitle>
           <Link href="/mahasiswa/tim">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="text-[#F59E0B] hover:text-[#D97706]">
               Lihat Semua
               <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
@@ -174,14 +180,14 @@ export default function MahasiswaDashboard() {
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#03045E]"></div>
             </div>
           ) : teams.length === 0 ? (
             <div className="text-center py-8">
               <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
               <p className="text-sm text-gray-500">Anda belum bergabung dengan tim manapun</p>
               <Link href="/mahasiswa/undangan">
-                <Button variant="outline" size="sm" className="mt-3">
+                <Button variant="outline" size="sm" className="mt-3 border-[#03045E] text-[#03045E] hover:bg-[#03045E] hover:text-white">
                   Lihat Undangan
                 </Button>
               </Link>
@@ -191,20 +197,20 @@ export default function MahasiswaDashboard() {
               {teams.slice(0, 3).map((team) => (
                 <div 
                   key={team.id} 
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-[#03045E]/10 hover:border-[#F59E0B] transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                      <Users className="h-5 w-5 text-green-600" />
+                    <div className="h-10 w-10 rounded-full bg-[#F59E0B] flex items-center justify-center">
+                      <Users className="h-5 w-5 text-[#03045E]" />
                     </div>
                     <div>
-                      <p className="font-medium">{team.tim.nama_tim}</p>
+                      <p className="font-medium text-[#03045E]">{team.tim.nama_tim}</p>
                       <p className="text-sm text-gray-500">
                         Ketua: {team.tim.ketua?.nama} • {team.peran}
                       </p>
                     </div>
                   </div>
-                  <Badge className="bg-green-100 text-green-700">
+                  <Badge className="bg-green-500 text-white">
                     <CheckCircle className="h-3 w-3 mr-1" />
                     Aktif
                   </Badge>

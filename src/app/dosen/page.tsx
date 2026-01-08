@@ -113,63 +113,71 @@ export default function DosenDashboard() {
     <div className="space-y-8">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard Dosen</h1>
+        <h1 className="text-2xl font-bold text-[#03045E]">Dashboard Dosen</h1>
         <p className="text-gray-600 mt-1">Selamat datang di portal penelitian dan pengabdian</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="border-l-4 border-[#03045E]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Proposal</CardTitle>
-            <FileText className="h-5 w-5 text-blue-600" />
+            <CardTitle className="text-sm font-medium text-gray-600">Total Proposal</CardTitle>
+            <div className="p-2 bg-[#03045E] rounded-lg">
+              <FileText className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{loading ? '-' : proposals.length}</div>
+            <div className="text-2xl font-bold text-[#03045E]">{loading ? '-' : proposals.length}</div>
             <p className="text-xs text-muted-foreground">Proposal saya</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-[#F59E0B]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Proposal Diterima</CardTitle>
-            <CheckCircle className="h-5 w-5 text-green-600" />
+            <CardTitle className="text-sm font-medium text-gray-600">Proposal Diterima</CardTitle>
+            <div className="p-2 bg-green-500 rounded-lg">
+              <CheckCircle className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{loading ? '-' : acceptedProposals.length}</div>
+            <div className="text-2xl font-bold text-[#03045E]">{loading ? '-' : acceptedProposals.length}</div>
             <p className="text-xs text-muted-foreground">
               {acceptedProposals.length === 0 ? 'Belum ada proposal diterima' : 'Proposal berhasil'}
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-[#03045E]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Menunggu Review</CardTitle>
-            <Clock className="h-5 w-5 text-yellow-600" />
+            <CardTitle className="text-sm font-medium text-gray-600">Menunggu Review</CardTitle>
+            <div className="p-2 bg-[#F59E0B] rounded-lg">
+              <Clock className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{loading ? '-' : pendingProposals.length}</div>
+            <div className="text-2xl font-bold text-[#03045E]">{loading ? '-' : pendingProposals.length}</div>
             <p className="text-xs text-muted-foreground">Dalam proses</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-[#F59E0B]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Pendanaan</CardTitle>
-            <Wallet className="h-5 w-5 text-purple-600" />
+            <CardTitle className="text-sm font-medium text-gray-600">Total Pendanaan</CardTitle>
+            <div className="p-2 bg-[#03045E] rounded-lg">
+              <Wallet className="h-5 w-5 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{loading ? '-' : formatCurrency(totalFunding)}</div>
+            <div className="text-2xl font-bold text-[#03045E]">{loading ? '-' : formatCurrency(totalFunding)}</div>
             <p className="text-xs text-muted-foreground">Dana yang diterima</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Panduan Pengajuan Proposal */}
-      <Card className="border-blue-200 bg-blue-50/50">
+      <Card className="border-[#03045E] bg-blue-50/50">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-blue-900">
+          <CardTitle className="flex items-center gap-2 text-[#03045E]">
             <FileText className="h-5 w-5" />
             Cara Mengajukan Proposal
           </CardTitle>
@@ -177,12 +185,12 @@ export default function DosenDashboard() {
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
             {/* Step 1 */}
-            <div className="flex items-start gap-3 p-4 bg-white rounded-lg border">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
+            <div className="flex items-start gap-3 p-4 bg-white rounded-lg border border-[#03045E]/20">
+              <div className="flex-shrink-0 w-8 h-8 bg-[#03045E] text-white rounded-full flex items-center justify-center font-bold">
                 1
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900">Buat Tim Penelitian</h4>
+                <h4 className="font-semibold text-[#03045E]">Buat Tim Penelitian</h4>
                 <p className="text-sm text-gray-600 mt-1">
                   Bentuk tim dengan mengundang dosen atau mahasiswa sebagai anggota
                 </p>
@@ -191,16 +199,16 @@ export default function DosenDashboard() {
 
             {/* Arrow */}
             <div className="hidden md:flex items-center justify-center">
-              <ArrowRight className="h-6 w-6 text-blue-400" />
+              <ArrowRight className="h-6 w-6 text-[#F59E0B]" />
             </div>
 
             {/* Step 2 */}
-            <div className="flex items-start gap-3 p-4 bg-white rounded-lg border">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
+            <div className="flex items-start gap-3 p-4 bg-white rounded-lg border border-[#03045E]/20">
+              <div className="flex-shrink-0 w-8 h-8 bg-[#F59E0B] text-[#03045E] rounded-full flex items-center justify-center font-bold">
                 2
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900">Ajukan Proposal</h4>
+                <h4 className="font-semibold text-[#03045E]">Ajukan Proposal</h4>
                 <p className="text-sm text-gray-600 mt-1">
                   Isi formulir proposal dan pilih tim yang sudah dibuat
                 </p>
@@ -210,7 +218,7 @@ export default function DosenDashboard() {
           
           <div className="mt-6 flex justify-center">
             <Link href="/dosen/tim">
-              <Button className="bg-blue-600 hover:bg-blue-700">
+              <Button className="bg-[#F59E0B] hover:bg-[#D97706] text-[#03045E] font-semibold">
                 <Users className="h-4 w-4 mr-2" />
                 Mulai Buat Tim
               </Button>
@@ -222,12 +230,12 @@ export default function DosenDashboard() {
       {/* Tim Saya */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-green-600" />
+          <CardTitle className="flex items-center gap-2 text-[#03045E]">
+            <Users className="h-5 w-5 text-[#03045E]" />
             Tim Saya ({teams.length})
           </CardTitle>
           <Link href="/dosen/tim">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="text-[#F59E0B] hover:text-[#D97706]">
               Lihat Semua
               <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
@@ -236,7 +244,7 @@ export default function DosenDashboard() {
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#03045E]"></div>
             </div>
           ) : teams.length === 0 ? (
             <div className="text-center py-8">
@@ -245,7 +253,7 @@ export default function DosenDashboard() {
                 Anda belum memiliki tim penelitian
               </p>
               <Link href="/dosen/tim">
-                <Button variant="outline">
+                <Button variant="outline" className="border-[#03045E] text-[#03045E] hover:bg-[#03045E] hover:text-white">
                   <Plus className="h-4 w-4 mr-2" />
                   Buat Tim Pertama
                 </Button>
@@ -256,20 +264,20 @@ export default function DosenDashboard() {
               {teams.slice(0, 3).map((team) => (
                 <div 
                   key={team.id} 
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-[#03045E]/10 hover:border-[#F59E0B] transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                      <Users className="h-5 w-5 text-green-600" />
+                    <div className="h-10 w-10 rounded-full bg-[#F59E0B] flex items-center justify-center">
+                      <Users className="h-5 w-5 text-[#03045E]" />
                     </div>
                     <div>
-                      <p className="font-medium">{team.nama_tim}</p>
+                      <p className="font-medium text-[#03045E]">{team.nama_tim}</p>
                       <p className="text-sm text-gray-500">
                         {team.anggota_tim.filter(m => m.status === 'accepted').length} anggota aktif
                       </p>
                     </div>
                   </div>
-                  <Badge variant="outline">
+                  <Badge variant="outline" className="border-[#03045E] text-[#03045E]">
                     {team.anggota_tim.length} total
                   </Badge>
                 </div>
@@ -288,12 +296,12 @@ export default function DosenDashboard() {
       {proposals.length > 0 && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-blue-600" />
+            <CardTitle className="flex items-center gap-2 text-[#03045E]">
+              <FileText className="h-5 w-5 text-[#03045E]" />
               Proposal Terbaru
             </CardTitle>
             <Link href="/dosen/proposal">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-[#F59E0B] hover:text-[#D97706]">
                 Lihat Semua
                 <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
@@ -304,10 +312,10 @@ export default function DosenDashboard() {
               {proposals.slice(0, 3).map((proposal) => (
                 <div 
                   key={proposal.id} 
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-[#03045E]/10"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{proposal.judul}</p>
+                    <p className="font-medium truncate text-[#03045E]">{proposal.judul}</p>
                     <p className="text-sm text-gray-500">
                       {proposal.tim?.nama_tim || 'Tim'} • {proposal.hibah?.nama_hibah || 'Hibah'}
                     </p>

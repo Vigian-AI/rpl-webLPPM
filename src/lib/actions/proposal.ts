@@ -233,6 +233,52 @@ export async function updateProposal(id: string, input: Partial<ProposalInput>) 
 export async function submitProposal(id: string) {
   const supabase = await createClient();
   
+  // Get proposal with tim_id
+  const { data: proposalData } = await supabase
+    .from('proposal')
+    .select('tim_id')
+    .eq('id', id)
+    .single();
+
+  if (!proposalData) {
+    return { data: null, error: 'Proposal tidak ditemukan' };
+  }
+
+  // Count team members (including ketua) - only active users
+  // First get all accepted members (ketua is also in anggota_tim)
+  const { data: allMembers } = await supabase
+    .from('anggota_tim')
+    .select('user_id')
+    .eq('tim_id', proposalData.tim_id)
+    .eq('status', 'accepted');
+
+  // Then check which users are active
+  let totalMembers = 0;
+  if (allMembers && allMembers.length > 0) {
+    const userIds = allMembers.map(m => m.user_id);
+    const { data: activeUsers } = await supabase
+      .from('users')
+      .select('id')
+      .in('id', userIds)
+      .eq('is_active', true);
+    
+    totalMembers = activeUsers?.length || 0;
+  }
+
+  if (totalMembers < 5) {
+    return { 
+      data: null, 
+      error: `Tim harus memiliki minimal 5 anggota. Saat ini tim Anda memiliki ${totalMembers} anggota. Tambahkan ${5 - totalMembers} anggota lagi.` 
+    };
+  }
+
+  if (totalMembers > 7) {
+    return { 
+      data: null, 
+      error: `Tim tidak boleh lebih dari 7 anggota. Saat ini tim Anda memiliki ${totalMembers} anggota. Kurangi ${totalMembers - 7} anggota.` 
+    };
+  }
+
   const { data, error } = await supabase
     .from('proposal')
     .update({

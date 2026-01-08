@@ -61,6 +61,7 @@ export default function UsersPage() {
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [filterRole, setFilterRole] = useState<UserRole | 'all'>('all');
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -181,6 +182,12 @@ export default function UsersPage() {
     if (user.role === 'mahasiswa') return user.mahasiswa?.[0]?.nim || '-';
     return '-';
   };
+
+  const filteredUsers = users.filter((user) => {
+    // Filter by role
+    if (filterRole !== 'all' && user.role !== filterRole) return false;
+    return true;
+  });
 
   return (
     <div className="space-y-6">
@@ -345,27 +352,27 @@ export default function UsersPage() {
         <div className="p-3 text-sm text-green-600 bg-green-50 rounded-lg">{success}</div>
       )}
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Hapus Pengguna</DialogTitle>
-            <DialogDescription>
-              Apakah Anda yakin ingin menghapus akun "{selectedUser && getUserName(selectedUser)}"? 
-              Tindakan ini tidak dapat dibatalkan.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-              Batal
-            </Button>
-            <Button variant="destructive" onClick={handleDeleteUser}>
-              <Trash2 className="h-4 w-4 mr-2" />
-              Hapus
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Filters */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="max-w-xs">
+            <div className="space-y-2">
+              <Label htmlFor="filterRole">Filter Role</Label>
+              <Select value={filterRole} onValueChange={(value: UserRole | 'all') => setFilterRole(value)}>
+                <SelectTrigger id="filterRole">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Role</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="dosen">Dosen</SelectItem>
+                  <SelectItem value="mahasiswa">Mahasiswa</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-3">
@@ -376,8 +383,9 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.filter((u) => u.role === 'admin').length}
+              {filteredUsers.filter((u) => u.role === 'admin').length}
             </div>
+            <p className="text-xs text-gray-500 mt-1">dari {users.filter((u) => u.role === 'admin').length} total</p>
           </CardContent>
         </Card>
         <Card>
@@ -387,8 +395,9 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.filter((u) => u.role === 'dosen').length}
+              {filteredUsers.filter((u) => u.role === 'dosen').length}
             </div>
+            <p className="text-xs text-gray-500 mt-1">dari {users.filter((u) => u.role === 'dosen').length} total</p>
           </CardContent>
         </Card>
         <Card>
@@ -398,8 +407,9 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.filter((u) => u.role === 'mahasiswa').length}
+              {filteredUsers.filter((u) => u.role === 'mahasiswa').length}
             </div>
+            <p className="text-xs text-gray-500 mt-1">dari {users.filter((u) => u.role === 'mahasiswa').length} total</p>
           </CardContent>
         </Card>
       </div>
@@ -408,14 +418,14 @@ export default function UsersPage() {
       <Card>
         <CardHeader>
           <CardTitle>Daftar Pengguna</CardTitle>
-          <CardDescription>Semua pengguna yang terdaftar dalam sistem</CardDescription>
+          <CardDescription>Menampilkan {filteredUsers.length} dari {users.length} pengguna</CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
             <div className="text-center py-8 text-gray-500">Memuat data...</div>
-          ) : users.length === 0 ? (
+          ) : filteredUsers.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              Belum ada pengguna terdaftar
+              {users.length === 0 ? 'Belum ada pengguna terdaftar' : 'Tidak ada pengguna yang sesuai dengan filter'}
             </div>
           ) : (
             <Table>
@@ -432,7 +442,7 @@ export default function UsersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">{getUserName(user)}</TableCell>
                     <TableCell className="text-blue-600 font-medium">{user.username}</TableCell>
@@ -483,6 +493,28 @@ export default function UsersPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hapus Pengguna</DialogTitle>
+            <DialogDescription>
+              Apakah Anda yakin ingin menghapus akun "{selectedUser && getUserName(selectedUser)}"? 
+              Tindakan ini tidak dapat dibatalkan.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Batal
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteUser}>
+              <Trash2 className="h-4 w-4 mr-2" />
+              Hapus
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
