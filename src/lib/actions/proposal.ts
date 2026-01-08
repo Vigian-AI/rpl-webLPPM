@@ -355,6 +355,7 @@ export async function deleteProposal(id: string) {
 
 export async function uploadProposalDocument(proposalId: string, file: File) {
   const supabase = await createClient();
+  const user = await getCurrentUser();
   
   const fileName = `proposals/${proposalId}/${Date.now()}_${file.name}`;
   
@@ -375,6 +376,22 @@ export async function uploadProposalDocument(proposalId: string, file: File) {
     .from('proposal')
     .update({ dokumen_proposal_url: publicUrl })
     .eq('id', proposalId);
+
+  // Insert record to dokumen table
+  const { error: dokumenError } = await supabase
+    .from('dokumen')
+    .insert({
+      proposal_id: proposalId,
+      nama_dokumen: file.name,
+      jenis_dokumen: 'Proposal',
+      file_url: publicUrl,
+      uploaded_by: user?.id,
+    });
+
+  if (dokumenError) {
+    console.error('Error inserting dokumen record:', dokumenError);
+    // Don't fail the whole operation if dokumen insert fails
+  }
 
   revalidatePath(`/dosen/proposal/${proposalId}`);
   revalidatePath(`/mahasiswa/proposal/${proposalId}`);

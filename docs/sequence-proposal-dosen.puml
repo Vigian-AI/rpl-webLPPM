@@ -1,0 +1,231 @@
+@startuml Sequence Diagram - Pengajuan Proposal Dosen
+
+title Sequence Diagram: Pengajuan Proposal Dosen
+
+actor "Dosen" as dosen
+participant "UI: NewProposalPage" as ui
+participant "Actions: proposal" as proposalAction
+participant "Actions: hibah" as hibahAction
+participant "Actions: team" as teamAction
+participant "Supabase Client" as supabase
+database "Database" as db
+
+== Inisialisasi Form ==
+dosen -> ui: Buka halaman pengajuan proposal baru
+activate ui
+ui -> hibahAction: getActiveHibah()
+activate hibahAction
+hibahAction -> supabase: Query master_hibah (status=aktif)
+activate supabase
+supabase -> db: SELECT * FROM master_hibah
+activate db
+db --> supabase: List Hibah Aktif
+deactivate db
+supabase --> hibahAction: Data Hibah
+deactivate supabase
+hibahAction --> ui: { data: MasterHibah[] }
+deactivate hibahAction
+
+ui -> teamAction: getTeamsForProposal()
+activate teamAction
+teamAction -> supabase: Query tim + anggota
+activate supabase
+supabase -> db: SELECT tim, anggota_tim, users
+activate db
+db --> supabase: List Tim dan Anggota
+deactivate db
+supabase --> teamAction: Data Tim
+deactivate supabase
+teamAction --> ui: { data: Team[] }
+deactivate teamAction
+
+ui --> dosen: Tampilkan form dengan data\n(Hibah & Tim tersedia)
+deactivate ui
+
+== Mengisi Form Proposal ==
+dosen -> ui: Pilih tim
+dosen -> ui: Pilih hibah
+dosen -> ui: Isi judul, abstrak, latar belakang, dll
+dosen -> ui: Isi anggaran, metodologi, luaran
+dosen -> ui: Upload dokumen PDF proposal
+note right of dosen: Upload dokumen PDF wajib\nsebelum mengajukan
+
+== Simpan Draft ==
+alt Simpan sebagai Draft
+    dosen -> ui: Klik "Simpan Draft"
+    activate ui
+    ui -> proposalAction: createProposal(formData)
+    activate proposalAction
+    
+    proposalAction -> supabase: Get current user
+    activate supabase
+    supabase --> proposalAction: User data
+    deactivate supabase
+    
+    proposalAction -> supabase: Get tim data (ketua_id)
+    activate supabase
+    supabase -> db: SELECT * FROM tim WHERE id = tim_id
+    activate db
+    db --> supabase: Tim data
+    deactivate db
+    supabase --> proposalAction: Tim data (ketua_id)
+    deactivate supabase
+    
+    proposalAction -> supabase: Get dosen ID from user
+    activate supabase
+    supabase -> db: SELECT id FROM dosen WHERE user_id = ?
+    activate db
+    db --> supabase: Dosen ID
+    deactivate db
+    supabase --> proposalAction: Dosen data
+    deactivate supabase
+    
+    proposalAction -> supabase: Check authorization\n(Ketua atau Asisten Dosen)
+    activate supabase
+    supabase -> db: Check anggota_tim status
+    activate db
+    db --> supabase: Authorization result
+    deactivate db
+    supabase --> proposalAction: Authorization granted
+    deactivate supabase
+    
+    proposalAction -> supabase: Insert proposal
+    activate supabase
+    supabase -> db: INSERT INTO proposal\n(status='draft')
+    activate db
+    db --> supabase: Proposal ID
+    deactivate db
+    supabase --> proposalAction: { data: Proposal }
+    deactivate supabase
+    
+    proposalAction --> ui: { data: Proposal, error: null }
+    deactivate proposalAction
+    
+    alt Jika ada file PDF
+        ui -> proposalAction: uploadProposalDocument(proposalId, pdfFile)
+        activate proposalAction
+        proposalAction -> supabase: Upload ke storage
+        activate supabase
+        supabase -> db: Store file in bucket
+        activate db
+        db --> supabase: File path
+        deactivate db
+        supabase --> proposalAction: Upload success
+        deactivate supabase
+        
+        proposalAction -> supabase: Insert record to dokumen table
+        activate supabase
+        supabase -> db: INSERT INTO dokumen
+        activate db
+        db --> supabase: Success
+        deactivate db
+        supabase --> proposalAction: Document record created
+        deactivate supabase
+        proposalAction --> ui: Upload complete
+        deactivate proposalAction
+    end
+    
+    ui --> dosen: Redirect ke detail proposal
+    deactivate ui
+end
+
+== Ajukan Proposal ==
+alt Ajukan Proposal (Submit)
+    dosen -> ui: Klik "Ajukan"
+    activate ui
+    
+    ui -> ui: Validasi PDF diupload
+    alt PDF belum diupload
+        ui --> dosen: Error: "Dokumen proposal\nPDF wajib diupload"
+        deactivate ui
+    else PDF sudah diupload
+        ui -> proposalAction: createProposal(formData)
+        activate proposalAction
+        
+        note over proposalAction: Proses yang sama dengan\nsimpan draft
+        
+        proposalAction -> supabase: Validasi & Insert proposal
+        activate supabase
+        supabase -> db: INSERT INTO proposal\n(status='draft')
+        activate db
+        db --> supabase: Proposal ID
+        deactivate db
+        supabase --> proposalAction: { data: Proposal }
+        deactivate supabase
+        proposalAction --> ui: { data: Proposal }
+        deactivate proposalAction
+        
+        ui -> proposalAction: uploadProposalDocument(proposalId, pdfFile)
+        activate proposalAction
+        proposalAction -> supabase: Upload PDF & create record
+        activate supabase
+        supabase -> db: Store file & insert dokumen
+        activate db
+        db --> supabase: Success
+        deactivate db
+        supabase --> proposalAction: Upload complete
+        deactivate supabase
+        proposalAction --> ui: { error: null }
+        deactivate proposalAction
+        
+        ui -> proposalAction: submitProposal(proposalId)
+        activate proposalAction
+        
+        proposalAction -> supabase: Get proposal + tim_id
+        activate supabase
+        supabase -> db: SELECT tim_id FROM proposal
+        activate db
+        db --> supabase: Tim ID
+        deactivate db
+        supabase --> proposalAction: Proposal data
+        deactivate supabase
+        
+        proposalAction -> supabase: Count team members (accepted)
+        activate supabase
+        supabase -> db: SELECT COUNT anggota_tim\nWHERE status='accepted'
+        activate db
+        db --> supabase: Member count
+        deactivate db
+        supabase --> proposalAction: Team members count
+        deactivate supabase
+        
+        proposalAction -> supabase: Validate dokumen uploaded
+        activate supabase
+        supabase -> db: SELECT * FROM dokumen\nWHERE proposal_id = ?
+        activate db
+        db --> supabase: Document exists
+        deactivate db
+        supabase --> proposalAction: Document validation
+        deactivate supabase
+        
+        proposalAction -> supabase: Update status to 'submitted'
+        activate supabase
+        supabase -> db: UPDATE proposal\nSET status_proposal='submitted'\nWHERE id = ?
+        activate db
+        db --> supabase: Update success
+        deactivate db
+        supabase --> proposalAction: { data: Proposal }
+        deactivate supabase
+        
+        proposalAction --> ui: { error: null }
+        deactivate proposalAction
+        
+        ui --> dosen: Redirect ke daftar proposal\nTampilkan notifikasi sukses
+        deactivate ui
+    end
+end
+
+== Error Handling ==
+alt Terjadi Error
+    ui -> proposalAction: Any action
+    activate proposalAction
+    proposalAction -> supabase: Query/Mutation
+    activate supabase
+    supabase --> proposalAction: Error response
+    deactivate supabase
+    proposalAction --> ui: { data: null, error: "Error message" }
+    deactivate proposalAction
+    ui --> dosen: Tampilkan pesan error
+end
+
+@enduml
