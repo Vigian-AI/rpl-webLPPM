@@ -147,3 +147,124 @@ export async function toggleHibahStatus(id: string, isActive: boolean) {
   revalidatePath('/admin/hibah');
   return { data: data as MasterHibah, error: null };
 }
+
+export interface HibahStatistics {
+  hibahId: string;
+  totalProposals: number;
+  draftProposals: number;
+  submittedProposals: number;
+  reviewProposals: number;
+  acceptedProposals: number;
+  rejectedProposals: number;
+  totalRequested: number;
+}
+
+export async function getHibahStatistics(hibahId?: string) {
+  const supabase = await createClient();
+  
+  try {
+    let query = supabase.from('proposal').select('hibah_id, status_proposal, anggaran_diajukan');
+    
+    if (hibahId) {
+      query = query.eq('hibah_id', hibahId);
+    }
+    
+    const { data: proposals, error } = await query;
+    
+    if (error) {
+      return { data: null, error: error.message };
+    }
+    
+    if (!proposals) {
+      return { data: null, error: 'No proposals found' };
+    }
+    
+    // Group by hibah_id if not specified
+    const statsByHibah = proposals.reduce((acc, proposal) => {
+      const hibahId = proposal.hibah_id;
+      if (!acc[hibahId]) {
+        acc[hibahId] = {
+          hibahId,
+          totalProposals: 0,
+          draftProposals: 0,
+          submittedProposals: 0,
+          reviewProposals: 0,
+          acceptedProposals: 0,
+          rejectedProposals: 0,
+          totalRequested: 0,
+        };
+      }
+      
+      acc[hibahId].totalProposals++;
+      
+      switch (proposal.status_proposal) {
+        case 'draft':
+          acc[hibahId].draftProposals++;
+          break;
+        case 'submitted':
+          acc[hibahId].submittedProposals++;
+          break;
+        case 'review':
+          acc[hibahId].reviewProposals++;
+          break;
+        case 'accepted':
+          acc[hibahId].acceptedProposals++;
+          break;
+        case 'rejected':
+          acc[hibahId].rejectedProposals++;
+          break;
+      }
+      
+      if (proposal.anggaran_diajukan) {
+        acc[hibahId].totalRequested += proposal.anggaran_diajukan;
+      }
+      
+      return acc;
+    }, {} as Record<string, HibahStatistics>);
+    
+    if (hibahId) {
+      return { data: statsByHibah[hibahId] || null, error: null };
+    }
+    
+    return { data: statsByHibah, error: null };
+  } catch (error) {
+    return { data: null, error: 'Gagal mengambil statistik hibah' };
+  }
+}
+
+export async function getHibahListWithStats() {
+  const supabase = await createClient();
+  
+  const { data: hibahList, error: hibahError } = await supabase
+    .from('master_hibah')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (hibahError) {
+    return { data: null, error: hibahError.message };
+  }
+
+  const { data: statsData, error: statsError } = await getHibahStatistics();
+  
+  if (statsError) {
+    return { data: null, error: statsError };
+  }
+
+  const stats = statsData as Record<string, HibahStatistics>;
+
+  const hibahWithStats = hibahList.map((hibah) => ({
+    ...hibah,
+    stats: stats?.[hibah.id] || {
+      hibahId: hibah.id,
+      totalProposals: 0,
+      draftProposals: 0,
+      submittedProposals: 0,
+      reviewProposals: 0,
+      acceptedProposals: 0,
+      rejectedProposals: 0,
+      totalRequested: 0,
+    },
+  }));
+
+  return { data: hibahWithStats, error: null };
+}
